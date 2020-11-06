@@ -3,5 +3,5 @@ tasks = ['Do yoga', 'Make breakfast', 'Learn basics of SQL', 'Learn what is ORM'
 print("Today:")
 x = 1
 for task in tasks:
-    print('%d)' %x, task)
+    print("{}) {}".format(x, task))
     x += 1
