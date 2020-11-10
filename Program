@@ -1,7 +1,57 @@
-tasks = ['Do yoga', 'Make breakfast', 'Learn basics of SQL', 'Learn what is ORM']
+from sqlalchemy import create_engine
+import sys
 
-print("Today:")
-x = 1
-for task in tasks:
-    print("{}) {}".format(x, task))
-    x += 1
+engine = create_engine('sqlite:///todo.db?check_same_thread=False')
+
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, Date
+from datetime import datetime
+
+Base = declarative_base()
+
+
+class Table(Base):
+    __tablename__ = 'task'
+    id = Column(Integer, primary_key=True)
+    task = Column(String, default='default_value')
+    deadline = Column(Date, default=datetime.today())
+
+    def __repr__(self):
+        return self.task
+
+Base.metadata.create_all(engine)
+
+from sqlalchemy.orm import sessionmaker
+
+Session = sessionmaker(bind=engine)
+session = Session()
+
+rows = session.query(Table).all()
+
+for _ in range(100):
+    print("1) Today's tasks")
+    print("2) Add task")
+    print("0) Exit")
+
+    x = input()
+    if x == '1':
+        print("Today:")
+        if rows:
+            p = 1
+            for row in rows:
+                row = str(row)
+                print("{}. {}".format(p, row))
+                p += 1
+        else:
+            print('Nothing to do!')
+    elif x == '0':
+        print("Bye!")
+        sys.exit(0)
+    elif x == '2':
+        print('Enter task')
+        new_row = Table(task=input())
+        session.add(new_row)
+        session.commit()
+        rows = session.query(Table).all()
+        print('The task has been added!')
+        print('')
