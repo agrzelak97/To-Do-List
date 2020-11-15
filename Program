@@ -1,4 +1,5 @@
 from sqlalchemy import create_engine
+from sqlalchemy import desc, asc
 import sys
 
 engine = create_engine('sqlite:///todosx.db?check_same_thread=False')
@@ -102,10 +103,8 @@ for _ in range(100):
             print(" ")
 
     elif x == '3':
-        # session.query(Table).filter(Table.deadline.day.order_by(Table.deadline.day).all())
-        # rows = session.query(Table).all()
+        rows = session.query(Table).order_by(asc(Table.deadline)).all()
         p3 = 1
-        print(rows)
         for row in rows:
             print("{}. {}. {} {}".format(p3, row.task, row.deadline.day, row.deadline.strftime('%b')))
             p3 += 1
