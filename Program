@@ -35,10 +35,7 @@ if week_day == 7:
     week_day = 0
     start_date = today
 start_date=today - timedelta(days=week_day)
-# print(today)
-# print(week_day)
-# print(start_date)
-# print(start_date.weekday())
+
 
 def day(day_of_week):
     if day_of_week == 0:
@@ -62,11 +59,21 @@ for _ in range(100):
     print("1) Today's tasks")
     print("2) Week's tasks")
     print("3) All tasks")
-    print("4) Add task")
+    print("4) Missed Tasks")
+    print("5) Add task")
+    print("6) Delete task")
     print("0) Exit")
 
+
+
     x = input()
-    if x == '1':
+
+    if x == '0':
+        print("Bye!")
+        sys.exit(0)
+
+
+    elif x == '1':
         if rows:
             p = 1
             for row in rows:
@@ -84,31 +91,20 @@ for _ in range(100):
             print("Nothing to do!")
         print("")
 
-    elif x == '0':
-        print("Bye!")
-        sys.exit(0)
-
-    elif x == '4':
-            new_row = Table(task=input("Enter task\n"), deadline=datetime.strptime(input("Enter deadline\n"), '%Y-%m-%d'))
-            session.add(new_row)
-            session.commit()
-            rows = session.query(Table).all()
-            print('The task has been added!')
-            print('')
-
-
     elif x == '2':
 
         for i in range(7):
-            print("{} {} {}:".format(day((start_date + timedelta(days=i)).weekday() + 1),
-                                     ((start_date + timedelta(days=i)).day),
-                                     (start_date + timedelta(days=i)).strftime('%b')))
+            print("{} {} {}:".format(day((today + timedelta(days=i)).weekday() + 1),
+
+                                     ((today + timedelta(days=i)).day),
+
+                                     (today + timedelta(days=i)).strftime('%b')))
 
             z = 0
 
             for row in rows:
 
-                if start_date + timedelta(days=i) == row.deadline:
+                if today + timedelta(days=i) == row.deadline:
                     print("{}. {}".format(z + 1, row.task))
 
                     z += 1
@@ -128,3 +124,44 @@ for _ in range(100):
             print("")
         else:
             print("Nothing to do!")
+        print("")
+
+    elif x == '4':
+        p3 = 1
+        printed = 0
+        for row in rows:
+            if row.deadline < today:
+                print("{}. {}. {} {}".format(p3, row.task, row.deadline.day, row.deadline.strftime('%b')))
+                p3 += 1
+                printed = 1
+            if printed != 1:
+                print("Nothing is missed!")
+        print("")
+
+
+    elif x == '5':
+        new_row = Table(task=input("Enter task\n"), deadline=datetime.strptime(input("Enter deadline\n"), '%Y-%m-%d'))
+        session.add(new_row)
+        session.commit()
+        rows = session.query(Table).all()
+        print('The task has been added!')
+        print("")
+
+    elif x == '6':
+        rows = session.query(Table).order_by(asc(Table.deadline)).all()
+        p3 = 1
+        print("Choose the number of the task you want to delete:")
+        for row in rows:
+            print("{}. {}. {} {}".format(p3, row.task, row.deadline.day, row.deadline.strftime('%b')))
+            p3 += 1
+
+        x = int(input())
+        p4 = 1
+        for row in rows:
+            if x == p4:
+                session.delete(row)
+                session.commit()
+                break
+            else:
+                p4 += 1
+        print("")
